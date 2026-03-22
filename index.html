@@ -13,6 +13,11 @@
       --line: #e2e8f0;
       --accent: #111827;
       --soft: #eef2f7;
+      --danger: #b91c1c;
+      --success: #166534;
+      --success-bg: #f0fdf4;
+      --warning-bg: #fff7ed;
+      --warning-text: #9a3412;
     }
     * { box-sizing: border-box; }
     body {
@@ -44,6 +49,7 @@
     h1 { margin: 0 0 8px; font-size: 34px; }
     h2 { margin: 0 0 8px; }
     .lead { color: var(--muted); max-width: 760px; line-height: 1.7; }
+    .tabs { display: flex; gap: 12px; flex-wrap: wrap; }
     button, .btn {
       border: 1px solid var(--line);
       background: #fff;
@@ -61,6 +67,7 @@
     }
     button:hover, .btn:hover { transform: translateY(-1px); }
     .btn-dark { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn-danger { color: var(--danger); border-color: #fecaca; background: #fff; }
     .section { padding: 32px 0; }
     .card {
       background: var(--card);
@@ -72,14 +79,16 @@
     .search-wrap {
       display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap;
     }
-    input {
+    input, textarea {
       width: 100%;
       padding: 13px 14px;
       border-radius: 16px;
       border: 1px solid #cfd8e3;
       font-size: 15px;
       outline: none;
+      background: #fff;
     }
+    textarea { min-height: 100px; resize: vertical; }
     .search-box { max-width: 380px; width: 100%; }
     .articles-grid {
       display: grid;
@@ -100,7 +109,46 @@
     .reader h2 { font-size: 32px; }
     .reader-content { white-space: pre-wrap; line-height: 1.9; color: #334155; }
     .hidden { display: none !important; }
+    .admin-layout {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 24px;
+      align-items: start;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .field { margin-bottom: 16px; }
+    label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }
+    .login-box { max-width: 460px; margin: 0 auto; }
     .small { font-size: 13px; color: var(--muted); }
+    .danger { color: var(--danger); }
+    .success { color: var(--success); }
+    .notice {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 12px 14px;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 16px;
+      background: #fff;
+    }
+    .notice.warning {
+      background: var(--warning-bg);
+      color: var(--warning-text);
+      border-color: #fdba74;
+    }
+    .notice.success {
+      background: var(--success-bg);
+      color: var(--success);
+      border-color: #86efac;
+    }
+    .stored-item { padding: 16px; border: 1px solid var(--line); border-radius: 18px; margin-bottom: 14px; }
+    .stored-item p { color: var(--muted); line-height: 1.6; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .loading { color: var(--muted); }
     footer {
       border-top: 1px solid var(--line);
       background: #fff;
@@ -108,6 +156,8 @@
     }
     footer .container { padding: 18px 0; color: var(--muted); font-size: 14px; }
     @media (max-width: 900px) {
+      .admin-layout { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
       h1 { font-size: 28px; }
       .reader h2 { font-size: 26px; }
     }
@@ -120,6 +170,10 @@
         <h1>Nibir's Sadaqah Jaariyah</h1>
         <div class="lead">The collection of the writings of Asif Asmat Nibir, a meritorious student of BUET IPE'21.</div>
       </div>
+      <div class="tabs">
+        <button id="viewerTab" class="btn-dark">Viewer Section</button>
+        <button id="adminTab">Admin Section</button>
+      </div>
     </div>
   </header>
 
@@ -127,7 +181,7 @@
     <section id="viewerSection">
       <div class="card panel search-wrap">
         <div>
-          <h2>Writings Collection</h2>
+          <h2>Public Reading Section</h2>
           <div class="small">Browse the articles and open any writing to read it fully.</div>
         </div>
         <div class="search-box">
@@ -138,49 +192,124 @@
       <div id="readerView" class="card reader hidden"></div>
       <div id="articlesGrid" class="articles-grid"></div>
     </section>
+
+    <section id="adminSection" class="hidden">
+      <div id="loginView" class="card panel login-box">
+        <h2>Admin Login</h2>
+        <div class="small" style="margin-bottom:16px;">Use the single admin email and password.</div>
+        <div class="notice warning">
+          The admin ID is your admin email address.
+        </div>
+        <div class="field">
+          <label for="adminEmail">Admin Email</label>
+          <input id="adminEmail" type="email" placeholder="Enter admin email" />
+        </div>
+        <div class="field">
+          <label for="adminPass">Password</label>
+          <input id="adminPass" type="password" placeholder="Enter password" />
+        </div>
+        <div id="loginError" class="small danger hidden" style="margin-bottom:14px;"></div>
+        <button id="loginBtn" class="btn-dark" style="width:100%;">Login</button>
+      </div>
+
+      <div id="dashboardView" class="admin-layout hidden">
+        <div class="card panel">
+          <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap; margin-bottom:20px;">
+            <div>
+              <h2>Admin Dashboard</h2>
+              <div class="small">Upload, edit, and manage articles</div>
+            </div>
+            <button id="logoutBtn">Logout</button>
+          </div>
+
+          <div id="adminMessage" class="notice success hidden"></div>
+          <div id="adminError" class="notice warning hidden"></div>
+
+          <form id="articleForm">
+            <div class="form-grid">
+              <div class="field">
+                <label for="title">Title</label>
+                <input id="title" required placeholder="Enter article title" />
+              </div>
+              <div class="field">
+                <label for="category">Category</label>
+                <input id="category" required placeholder="Essay, Memoir, Letter..." value="Article" />
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="field">
+                <label for="author">Author Label</label>
+                <input id="author" required value="Asif Asmat Nibir" />
+              </div>
+              <div class="field">
+                <label for="date">Date</label>
+                <input id="date" type="date" required />
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="excerpt">Short excerpt</label>
+              <textarea id="excerpt" required placeholder="Write a short summary readers will see on the card"></textarea>
+            </div>
+
+            <div class="field">
+              <label for="content">Full article content</label>
+              <textarea id="content" required style="min-height:220px;" placeholder="Paste the full writing here"></textarea>
+            </div>
+
+            <div class="row">
+              <button type="submit" class="btn-dark" id="saveBtn">Upload article</button>
+              <button type="button" id="cancelEditBtn" class="hidden">Cancel editing</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card panel">
+          <h2 style="font-size:24px;">Stored Articles</h2>
+          <div class="small" style="margin-bottom:18px;">Manage everything already uploaded</div>
+          <div id="storedList"></div>
+        </div>
+      </div>
+    </section>
   </main>
 
   <footer>
-    <div class="container">A digital archive created to preserve and share the writings of Asif Asmat Nibir.</div>
+    <div class="container">Built as a memorial archive website with a public reading side and a secured single-admin upload side.</div>
   </footer>
 
-  <script>
-    const starterArticles = [
-      {
-        id: '1',
-        title: 'A Life of Thought and Kindness',
-        category: 'Memoir',
-        date: '2019-06-14',
-        excerpt: 'A reflective piece on memory, humanity, and the quiet value of kindness in daily life.',
-        content: 'This is a sample article. Replace this text with the original writing you want to publish.\\n\\nTo add a real writing, edit the starterArticles array in this file and then upload the updated index.html to GitHub again.',
-        author: 'Asif Asmat Nibir'
-      },
-      {
-        id: '2',
-        title: 'Letters on Hope',
-        category: 'Essay',
-        date: '2020-02-03',
-        excerpt: 'A thoughtful article about perseverance, inner strength, and faith in difficult times.',
-        content: 'Hope does not always arrive with noise. Sometimes it appears quietly, in routine, in patience, in the decision to continue even when certainty is absent.',
-        author: 'Asif Asmat Nibir'
-      },
-      {
-        id: '3',
-        title: 'On Simplicity',
-        category: 'Article',
-        date: '2018-11-21',
-        excerpt: 'A short piece exploring simple living, peace of mind, and gratitude.',
-        content: 'There is wisdom in simple words and simple habits. A meaningful life is not always the loudest one.',
-        author: 'Asif Asmat Nibir'
-      }
-    ];
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-    let articles = starterArticles;
+    const SUPABASE_URL = 'https://ebkskicpuvlkcwvrqwti.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVia3NraWNwdXZsa2N3dnJxd3RpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxOTc5MjcsImV4cCI6MjA4OTc3MzkyN30.90SjPzuqUtIQoHMIatyPrWP66IUnIHVDX0Sbmsus8Gg';
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let articles = [];
     let selectedArticleId = null;
+    let editingId = null;
+    let session = null;
 
+    const viewerTab = document.getElementById('viewerTab');
+    const adminTab = document.getElementById('adminTab');
+    const viewerSection = document.getElementById('viewerSection');
+    const adminSection = document.getElementById('adminSection');
     const articlesGrid = document.getElementById('articlesGrid');
     const readerView = document.getElementById('readerView');
     const searchInput = document.getElementById('searchInput');
+    const loginView = document.getElementById('loginView');
+    const dashboardView = document.getElementById('dashboardView');
+    const loginBtn = document.getElementById('loginBtn');
+    const loginError = document.getElementById('loginError');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const storedList = document.getElementById('storedList');
+    const articleForm = document.getElementById('articleForm');
+    const cancelEditBtn = document.getElementById('cancelEditBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const adminMessage = document.getElementById('adminMessage');
+    const adminError = document.getElementById('adminError');
+
+    document.getElementById('date').value = new Date().toISOString().slice(0, 10);
 
     function formatDate(dateString) {
       try {
@@ -190,13 +319,40 @@
       }
     }
 
+    function setTab(tab) {
+      const viewer = tab === 'viewer';
+      viewerSection.classList.toggle('hidden', !viewer);
+      adminSection.classList.toggle('hidden', viewer);
+      viewerTab.classList.toggle('btn-dark', viewer);
+      adminTab.classList.toggle('btn-dark', !viewer);
+    }
+
     function escapeHtml(str) {
-      return String(str)
+      return String(str ?? '')
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
-        .replace(/\"/g, '&quot;')
+        .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
+    }
+
+    function clearAdminNotices() {
+      adminMessage.classList.add('hidden');
+      adminError.classList.add('hidden');
+      adminMessage.textContent = '';
+      adminError.textContent = '';
+    }
+
+    function showAdminMessage(message) {
+      adminMessage.textContent = message;
+      adminMessage.classList.remove('hidden');
+      adminError.classList.add('hidden');
+    }
+
+    function showAdminError(message) {
+      adminError.textContent = message;
+      adminError.classList.remove('hidden');
+      adminMessage.classList.add('hidden');
     }
 
     function renderArticles() {
@@ -204,16 +360,16 @@
       const filtered = articles.filter(a => [a.title, a.category, a.excerpt, a.content, a.author].join(' ').toLowerCase().includes(q));
 
       if (selectedArticleId) {
-        const article = articles.find(a => a.id === selectedArticleId);
+        const article = articles.find(a => String(a.id) === String(selectedArticleId));
         if (article) {
           readerView.innerHTML = `
-            <button onclick="backToList()">← Back to all articles</button>
+            <button onclick="window.backToList()">← Back to all articles</button>
             <div class="meta" style="margin-top:18px;">
-              <span class="pill">${article.category}</span>
-              <span>${formatDate(article.date)}</span>
+              <span class="pill">${escapeHtml(article.category)}</span>
+              <span>${formatDate(article.article_date)}</span>
             </div>
-            <h2>${article.title}</h2>
-            <div class="small" style="margin-bottom:22px;">By ${article.author}</div>
+            <h2>${escapeHtml(article.title)}</h2>
+            <div class="small" style="margin-bottom:22px;">By ${escapeHtml(article.author)}</div>
             <div class="reader-content">${escapeHtml(article.content).replace(/\n/g, '<br>')}</div>
           `;
           readerView.classList.remove('hidden');
@@ -226,27 +382,187 @@
       articlesGrid.classList.remove('hidden');
 
       if (!filtered.length) {
-        articlesGrid.innerHTML = `<div class="card panel" style="grid-column:1/-1; text-align:center;">No matching articles found.</div>`;
+        articlesGrid.innerHTML = `<div class="card panel" style="grid-column:1/-1; text-align:center;">No articles yet. The archive will appear here when writings are uploaded.</div>`;
         return;
       }
 
       articlesGrid.innerHTML = filtered.map(article => `
         <div class="card article-card">
           <div class="meta">
-            <span class="pill">${article.category}</span>
-            <span>${formatDate(article.date)}</span>
+            <span class="pill">${escapeHtml(article.category)}</span>
+            <span>${formatDate(article.article_date)}</span>
           </div>
-          <h3 style="margin:0 0 8px; font-size:24px;">${article.title}</h3>
-          <div class="small" style="margin-bottom:14px;">By ${article.author}</div>
+          <h3 style="margin:0 0 8px; font-size:24px;">${escapeHtml(article.title)}</h3>
+          <div class="small" style="margin-bottom:14px;">By ${escapeHtml(article.author)}</div>
           <div class="excerpt">${escapeHtml(article.excerpt)}</div>
           <div style="margin-top:18px;">
-            <button class="btn-dark" onclick="openArticle('${article.id}')">Read article</button>
+            <button class="btn-dark" onclick="window.openArticle('${article.id}')">Read article</button>
           </div>
         </div>
       `).join('');
     }
 
+    function renderAdmin() {
+      const isLoggedIn = !!session;
+      loginView.classList.toggle('hidden', isLoggedIn);
+      dashboardView.classList.toggle('hidden', !isLoggedIn);
+
+      if (!isLoggedIn) return;
+
+      if (!articles.length) {
+        storedList.innerHTML = `<div class="card panel" style="background:#f8fafc;">No articles yet.</div>`;
+        return;
+      }
+
+      storedList.innerHTML = articles.map(article => `
+        <div class="stored-item">
+          <div style="display:flex; justify-content:space-between; gap:8px; align-items:start; flex-wrap:wrap;">
+            <div>
+              <div style="font-weight:700;">${escapeHtml(article.title)}</div>
+              <div class="small">${escapeHtml(article.category)} • ${formatDate(article.article_date)}</div>
+            </div>
+          </div>
+          <p>${escapeHtml(article.excerpt)}</p>
+          <div class="row">
+            <button onclick="window.editArticle('${article.id}')">Edit</button>
+            <button class="btn-danger" onclick="window.deleteArticle('${article.id}')">Delete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function resetForm() {
+      editingId = null;
+      articleForm.reset();
+      document.getElementById('category').value = 'Article';
+      document.getElementById('author').value = 'Asif Asmat Nibir';
+      document.getElementById('date').value = new Date().toISOString().slice(0, 10);
+      cancelEditBtn.classList.add('hidden');
+      saveBtn.textContent = 'Upload article';
+    }
+
+    async function loadArticles() {
+      articlesGrid.innerHTML = `<div class="card panel loading" style="grid-column:1/-1; text-align:center;">Loading articles...</div>`;
+      const { data, error } = await supabase
+        .from('articles')
+        .select('*')
+        .order('article_date', { ascending: false })
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        articlesGrid.innerHTML = `<div class="card panel" style="grid-column:1/-1; text-align:center;">Could not load articles right now.</div>`;
+        return;
+      }
+
+      articles = data || [];
+      if (selectedArticleId && !articles.find(a => String(a.id) === String(selectedArticleId))) {
+        selectedArticleId = null;
+      }
+      renderArticles();
+      renderAdmin();
+    }
+
+    async function refreshSession() {
+      const { data } = await supabase.auth.getSession();
+      session = data.session;
+      renderAdmin();
+    }
+
+    viewerTab.addEventListener('click', () => setTab('viewer'));
+    adminTab.addEventListener('click', () => setTab('admin'));
     searchInput.addEventListener('input', renderArticles);
+
+    loginBtn.addEventListener('click', async () => {
+      loginError.classList.add('hidden');
+      loginError.textContent = '';
+      clearAdminNotices();
+
+      const email = document.getElementById('adminEmail').value.trim();
+      const password = document.getElementById('adminPass').value;
+
+      if (!email || !password) {
+        loginError.textContent = 'Please enter your admin email and password.';
+        loginError.classList.remove('hidden');
+        return;
+      }
+
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Logging in...';
+
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+      loginBtn.disabled = false;
+      loginBtn.textContent = 'Login';
+
+      if (error) {
+        loginError.textContent = error.message;
+        loginError.classList.remove('hidden');
+        return;
+      }
+
+      session = data.session;
+      document.getElementById('adminPass').value = '';
+      renderAdmin();
+      setTab('admin');
+      showAdminMessage('Logged in successfully.');
+      await loadArticles();
+    });
+
+    logoutBtn.addEventListener('click', async () => {
+      clearAdminNotices();
+      await supabase.auth.signOut();
+      session = null;
+      renderAdmin();
+      showAdminMessage('Logged out successfully.');
+    });
+
+    articleForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearAdminNotices();
+
+      const payload = {
+        title: document.getElementById('title').value.trim(),
+        category: document.getElementById('category').value.trim(),
+        author: document.getElementById('author').value.trim(),
+        article_date: document.getElementById('date').value,
+        excerpt: document.getElementById('excerpt').value.trim(),
+        content: document.getElementById('content').value.trim(),
+      };
+
+      if (!payload.title || !payload.category || !payload.author || !payload.article_date || !payload.excerpt || !payload.content) {
+        showAdminError('Please complete all fields.');
+        return;
+      }
+
+      saveBtn.disabled = true;
+      saveBtn.textContent = editingId ? 'Updating...' : 'Uploading...';
+
+      let response;
+      if (editingId) {
+        response = await supabase.from('articles').update(payload).eq('id', editingId);
+      } else {
+        response = await supabase.from('articles').insert(payload);
+      }
+
+      saveBtn.disabled = false;
+      saveBtn.textContent = editingId ? 'Update article' : 'Upload article';
+
+      if (response.error) {
+        showAdminError(response.error.message);
+        return;
+      }
+
+      const wasEditing = !!editingId;
+      resetForm();
+      await loadArticles();
+      setTab('admin');
+      showAdminMessage(wasEditing ? 'Article updated successfully.' : 'Article uploaded successfully.');
+    });
+
+    cancelEditBtn.addEventListener('click', () => {
+      clearAdminNotices();
+      resetForm();
+    });
 
     window.openArticle = function(id) {
       selectedArticleId = id;
@@ -259,7 +575,44 @@
       renderArticles();
     };
 
-    renderArticles();
+    window.editArticle = function(id) {
+      clearAdminNotices();
+      const article = articles.find(a => String(a.id) === String(id));
+      if (!article) return;
+      editingId = id;
+      document.getElementById('title').value = article.title;
+      document.getElementById('category').value = article.category;
+      document.getElementById('author').value = article.author;
+      document.getElementById('date').value = article.article_date;
+      document.getElementById('excerpt').value = article.excerpt;
+      document.getElementById('content').value = article.content;
+      cancelEditBtn.classList.remove('hidden');
+      saveBtn.textContent = 'Update article';
+      setTab('admin');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    window.deleteArticle = async function(id) {
+      clearAdminNotices();
+      if (!confirm('Delete this article?')) return;
+      const { error } = await supabase.from('articles').delete().eq('id', id);
+      if (error) {
+        showAdminError(error.message);
+        return;
+      }
+      if (String(editingId) === String(id)) resetForm();
+      await loadArticles();
+      showAdminMessage('Article deleted successfully.');
+    };
+
+    supabase.auth.onAuthStateChange((_event, newSession) => {
+      session = newSession;
+      renderAdmin();
+    });
+
+    await refreshSession();
+    await loadArticles();
+    renderAdmin();
   </script>
 </body>
 </html>
